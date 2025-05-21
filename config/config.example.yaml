@@ -1,6 +1,6 @@
 global:
     # lotus rpc, ws http 等都支持
-    lotus_api: "http://128.136.157.164:61234/rpc/v1"
+    lotus_api: "http://your-lotus-node:1234/rpc/v1"
     # lotus rpc 鉴权 token
     auth_token: ""
     # 检查间隔, 单位秒

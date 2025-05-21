@@ -8,13 +8,11 @@ import (
 	lotusapi "github.com/filecoin-project/lotus/api"
 )
 
-// LotusClient 封装与Lotus节点的通信
 type LotusClient struct {
 	lotusapi.FullNodeStruct
 	Closer jsonrpc.ClientCloser
 }
 
-// NewLotusClient 创建一个新的Lotus客户端
 func NewLotusClient(ctx context.Context, addr, authToken string) (*LotusClient, error) {
 	var headers http.Header
 	if authToken != "" {
@@ -33,7 +31,6 @@ func NewLotusClient(ctx context.Context, addr, authToken string) (*LotusClient, 
 	}, nil
 }
 
-// Close 关闭客户端连接
 func (c *LotusClient) Close() {
 	if c.Closer != nil {
 		c.Closer()
