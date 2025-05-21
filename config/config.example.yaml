@@ -1,0 +1,36 @@
+global:
+    # lotus rpc, ws http 等都支持
+    lotus_api: "http://128.136.157.164:61234/rpc/v1"
+    # lotus rpc 鉴权 token
+    auth_token: ""
+    # 检查间隔, 单位秒
+    check_interval: 30
+
+    # 以下配置可在miners配置中覆盖，可自定义每一个miner的参数
+    # deadline开始后10分钟，还没有检测到，认为wdpost有问题
+    timeout: 600
+    # deadline开始后25分钟，不进行检测，因为来不及了
+    slient: 1500
+    # 在wdpost有问题后，sleep一会，防止一直频繁发通知
+    sleep_interval: 60
+    # 超过100个faults扇区，才会告警
+    faults_sectors: 100
+    # apprise_api_server 地址
+    apprise_api_server: https://xxxx.changeme.app/notify
+    # 通知媒介，支持100种+
+    # 具体使用方法查看apprise文档
+    recipient_urls:
+        - "telegram://changeme:changeme/changeme"
+        # - "discord://123456789/abcdefghijklmnopqrstuvwxyz"
+miners:
+  - miner_id: f01697248
+    # timeout: 600
+    # slient: 1500
+    # sleep_interval: 120
+    # faults_sectors: 100
+    # apprise_api_server: "http://localhost:8000/notify"
+    # recipient_urls:
+    #     - "telegram://123456789:abcdefghijklmnopqrstuvwxyz/123456789"
+    #     - "discord://123456789/abcdefghijklmnopqrstuvwxyz"
+  - miner_id: f01889668
+  - miner_id: f01082888
