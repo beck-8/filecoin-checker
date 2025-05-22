@@ -73,9 +73,12 @@ func CheckFaultSectors(ctx context.Context, client *api.LotusClient, cfg *config
 				return err
 			}
 		}
-		// 检测到新的Faults扇区, 等待30分钟后再继续
-		time.Sleep(time.Minute * 30)
 	}
+
+	// fault检测逻辑每半小时只需要一次
+	remainingTime := (dlineInfo.Close - dlineInfo.CurrentEpoch) * 30
+	log.Info().Str("miner", cfg.MinerID).Msg(fmt.Sprintf("没有fault扇区,等待 %vs 后继续检查", remainingTime))
+	time.Sleep(time.Second * time.Duration(remainingTime))
 	return nil
 }
 
@@ -85,6 +88,7 @@ func CheckFault(ctx context.Context, client *api.LotusClient, c *config.MinerCon
 		if err != nil {
 			log.Error().Str("miner", c.MinerID).Err(err).Msg("检查Faults扇区失败")
 		}
-		time.Sleep(time.Second * time.Duration(config.Global.Global.CheckInterval))
+		// 里边sleep了
+		// time.Sleep(time.Second * time.Duration(config.Global.Global.CheckInterval))
 	}
 }
