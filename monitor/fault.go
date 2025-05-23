@@ -61,12 +61,12 @@ func CheckFaultSectors(ctx context.Context, client *api.LotusClient, cfg *config
 	if count, err := diff.Count(); err != nil {
 		return err
 	} else if count > 0 {
-		log.Error().Str("miner", cfg.MinerID).Uint64("count", count).Msg("检测到新的Faults扇区")
+		log.Error().Str("miner", cfg.MinerID).Uint64("count", count).Msg("检测到新的faults扇区")
 
 		if count > uint64(faultsSectors) {
 			err := notifier.SendNotify(cfg.MinerID,
 				fmt.Sprintf("新增%v个faults扇区", count),
-				fmt.Sprintf("%v 检测到新的Faults扇区", cfg.MinerID),
+				fmt.Sprintf("%v 检测到新的faults扇区", cfg.MinerID),
 				cfg.RecipientURLs, cfg.AppriseAPIServer)
 
 			if err != nil {
@@ -86,7 +86,7 @@ func CheckFault(ctx context.Context, client *api.LotusClient, c *config.MinerCon
 	for {
 		err := CheckFaultSectors(ctx, client, c)
 		if err != nil {
-			log.Error().Str("miner", c.MinerID).Err(err).Msg("检查Faults扇区失败")
+			log.Error().Str("miner", c.MinerID).Err(err).Msg("检查faults扇区失败")
 		}
 		// 里边sleep了
 		// time.Sleep(time.Second * time.Duration(config.Global.Global.CheckInterval))

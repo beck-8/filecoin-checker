@@ -48,7 +48,7 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 		return nil
 	}
 	if startDuration < uint64(timeout/30) || startDuration > uint64(slient/30) {
-		log.Info().Str("miner", cfg.MinerID).
+		log.Debug().Str("miner", cfg.MinerID).
 			Uint64("deadline", dlineInfo.Index).
 			Int("timeout", timeout).
 			Int("slient", slient).
@@ -76,7 +76,8 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 		}
 	}
 	if total == 0 {
-		log.Info().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg("当前没有需要提交的分区")
+		log.Info().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg(fmt.Sprintf("当前没有需要提交的分区,等待 %vs 后继续检查", (dlineInfo.Close-dlineInfo.CurrentEpoch)*30))
+		time.Sleep(time.Second * time.Duration((dlineInfo.Close-dlineInfo.CurrentEpoch)*30))
 		return nil
 	}
 	submmited, err := deads[int(dlineInfo.Index)].PostSubmissions.Count()
