@@ -2,7 +2,7 @@
 SHELL=/usr/bin/env bash
 
 # Define variables
-BINARY := filecoin-check
+BINARY := filecoin-checker
 COMMIT := $(shell git rev-parse --short HEAD)
 COMMIT_TIMESTAMP := $(shell git log -1 --format=%ct)
 VERSION := $(shell git describe --tags --abbrev=0)

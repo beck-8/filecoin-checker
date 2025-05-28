@@ -30,7 +30,8 @@ func CheckFaultSectors(ctx context.Context, client *api.LotusClient, cfg *config
 		return err
 	}
 	if !dlineInfo.IsOpen() {
-		log.Warn().Str("miner", cfg.MinerID).Msg("WindowedPoSt has not started yet, skipping Fault check")
+		log.Warn().Str("miner", cfg.MinerID).Msg("WindowedPoSt has not started yet, skipping Fault check, waiting 30m before checking again")
+		time.Sleep(time.Minute * 30)
 		return nil
 	}
 
