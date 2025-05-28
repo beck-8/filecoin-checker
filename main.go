@@ -16,12 +16,12 @@ import (
 func main() {
 	ctx := context.TODO()
 
-	log.Info().Msg(fmt.Sprintf("启动Filecoin Checker, Version: %s", fmt.Sprintf("%s-%s", Version, CurrentCommit)))
-	log.Info().Msg(fmt.Sprintf("总共配置%v个miner", len(config.Global.Miners)))
+	log.Info().Msg(fmt.Sprintf("Starting Filecoin Checker, Version: %s", fmt.Sprintf("%s-%s", Version, CurrentCommit)))
+	log.Info().Msg(fmt.Sprintf("Total configured miners: %v", len(config.Global.Miners)))
 
 	client, err := api.NewLotusClient(ctx, config.Global.Global.LotusAPI, config.Global.Global.AuthToken)
 	if err != nil {
-		log.Fatal().Err(err).Msg("连接Lotus节点失败")
+		log.Fatal().Err(err).Msg("Failed to connect to Lotus node")
 	}
 	defer client.Close()
 

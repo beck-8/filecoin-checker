@@ -1,35 +1,35 @@
-# 使用 bash 作为默认 shell
+# Use bash as the default shell
 SHELL=/usr/bin/env bash
 
-# 定义变量
+# Define variables
 BINARY := filecoin-check
 COMMIT := $(shell git rev-parse --short HEAD)
 COMMIT_TIMESTAMP := $(shell git log -1 --format=%ct)
 VERSION := $(shell git describe --tags --abbrev=0)
 GO_BIN := go
 
-# 构建标志
+# Build flags
 CGO_ENABLED := 0
 FLAGS := -trimpath
 LDFLAGS := -s -w -X main.Version=$(VERSION) -X main.CurrentCommit=$(COMMIT)
 
-# 声明伪目标
+# Declare phony targets
 .PHONY: all build run gotool clean help linux-amd64 linux-arm64 linux-arm linux-386 windows-amd64 windows-arm64 windows-386 darwin-amd64 darwin-arm64 build-all
 
-# 默认目标：整理代码并编译当前环境
+# Default target: tidy code and compile for current environment
 all:  build
 
-# 默认构建：当前环境
+# Default build: current environment
 build:
 	 $(GO_BIN) build -o $(BINARY) $(FLAGS) -ldflags "$(LDFLAGS)"
 
-# 清理
+# Clean
 clean:
 	@if [ -f $(BINARY) ]; then rm -f $(BINARY); fi
 
 linux:
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO_BIN) build -o $(BINARY)_linux_amd64 $(FLAGS) -ldflags "$(LDFLAGS)"
 
-# 帮助信息
+# Help information
 help:
-	@echo "make              - 编译当前环境的二进制文件"
+	@echo "make              - Compile binary for current environment"

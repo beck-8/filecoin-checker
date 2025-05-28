@@ -2,7 +2,7 @@ before:
   hooks:
     - go mod tidy
 release:
-  prerelease: auto  # 自动识别 beta、rc 作为预发布
+  prerelease: auto  # Automatically recognize beta, rc as pre-release
 
 builds:
   - env:
@@ -53,4 +53,4 @@ changelog:
       - '^test:'
       - '^chore:'
       - Merge pull request
-      - Merge branch 
+      - Merge branch

@@ -13,12 +13,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// NotifyRequest 定义发送通知的请求结构
-// apprise 格式
+// NotifyRequest defines the structure for sending notification requests
+// apprise format
 type NotifyRequest struct {
-	URLs  string `json:"urls"`  // 通知目标的 URL（如 mailto://、discord://）
-	Body  string `json:"body"`  // 通知内容
-	Title string `json:"title"` // 通知标题
+	URLs  string `json:"urls"`  // Notification target URLs (like mailto://, discord://)
+	Body  string `json:"body"`  // Notification content
+	Title string `json:"title"` // Notification title
 }
 
 func SendNotify(miner, body, title string, recipientURLs []string, serverURL string) error {
@@ -26,7 +26,7 @@ func SendNotify(miner, body, title string, recipientURLs []string, serverURL str
 		if config.Global.Global.AppriseAPIServer != "" {
 			serverURL = config.Global.Global.AppriseAPIServer
 		} else {
-			log.Warn().Str("miner", miner).Msg("未配置通知服务器地址")
+			log.Warn().Str("miner", miner).Msg("Notification server address not configured")
 			return nil
 		}
 	}
@@ -35,7 +35,7 @@ func SendNotify(miner, body, title string, recipientURLs []string, serverURL str
 		if len(config.Global.Global.RecipientURLs) != 0 {
 			recipientURLs = config.Global.Global.RecipientURLs
 		} else {
-			log.Warn().Str("miner", miner).Msg("未配置通知目标")
+			log.Warn().Str("miner", miner).Msg("Notification targets not configured")
 			return nil
 		}
 	}
@@ -48,7 +48,7 @@ func SendNotify(miner, body, title string, recipientURLs []string, serverURL str
 
 	jsonData, err := json.Marshal(request)
 	if err != nil {
-		log.Error().Str("miner", miner).Err(err).Msg("构建请求体失败")
+		log.Error().Str("miner", miner).Err(err).Msg("Failed to build request body")
 		return err
 	}
 
@@ -56,7 +56,7 @@ func SendNotify(miner, body, title string, recipientURLs []string, serverURL str
 
 	resp, err := client.Post(serverURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Error().Str("miner", miner).Err(err).Msg("发送请求失败")
+		log.Error().Str("miner", miner).Err(err).Msg("Failed to send request")
 		return err
 	}
 	defer resp.Body.Close()
@@ -67,7 +67,7 @@ func SendNotify(miner, body, title string, recipientURLs []string, serverURL str
 			Str("miner", miner).
 			Int("status_code", resp.StatusCode).
 			Str("response", string(body)).
-			Msg("发送通知失败")
+			Msg("Failed to send notification")
 		return nil
 	}
 
@@ -77,7 +77,7 @@ func SendNotify(miner, body, title string, recipientURLs []string, serverURL str
 		Str("body", body).
 		// Str("serverURL", serverURL).
 		// Strs("recipientURLs", recipientURLs).
-		Msg("通知发送成功")
+		Msg("Notification sent successfully")
 
 	return nil
 }

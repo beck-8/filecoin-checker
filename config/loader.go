@@ -9,34 +9,34 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// LoadConfig 从文件加载配置
+// LoadConfig loads configuration from file
 func LoadConfig(configFile string) error {
-	// 如果配置文件不存在，创建默认配置
+	// If the configuration file does not exist, create a default configuration
 	yamlFile, err := os.ReadFile(configFile)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return createDefaultConfig(configFile)
 		}
-		return fmt.Errorf("读取配置文件失败: %w", err)
+		return fmt.Errorf("Failed to read configuration file: %w", err)
 	}
 
 	if err := yaml.Unmarshal(yamlFile, Global); err != nil {
-		return fmt.Errorf("解析配置文件失败: %w", err)
+		return fmt.Errorf("Failed to parse configuration file: %w", err)
 	}
-	log.Info().Msg("配置文件读取成功")
+	log.Info().Msg("Configuration file loaded successfully")
 	return nil
 }
 
-// createDefaultConfig 创建默认配置文件
+// createDefaultConfig creates a default configuration file
 func createDefaultConfig(configFile string) error {
-	log.Info().Msg("配置文件不存在，创建默认配置文件")
+	log.Info().Msg("Configuration file does not exist, creating default configuration file")
 
 	if err := os.WriteFile(configFile, []byte(DefaultConfigTemplate), 0644); err != nil {
-		return fmt.Errorf("写入默认配置文件失败: %w", err)
+		return fmt.Errorf("Failed to write default configuration file: %w", err)
 	}
 
-	log.Info().Msg("默认配置文件创建成功")
-	log.Info().Msg(fmt.Sprintf("请编辑配置文件: %s", configFile))
+	log.Info().Msg("Default configuration file created successfully")
+	log.Info().Msg(fmt.Sprintf("Please edit the configuration file: %s", configFile))
 	os.Exit(0)
 	return nil
 }

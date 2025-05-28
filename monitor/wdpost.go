@@ -31,7 +31,7 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 	}
 
 	if timeout > 30*60 || slient > 30*60 || sleepInterval > 30*60 {
-		return fmt.Errorf("配置错误: timeout、slient、sleep_interval不能大于30")
+		return fmt.Errorf("Configuration error: timeout, slient, sleep_interval cannot be greater than 30")
 	}
 
 	addr, err := address.NewFromString(cfg.MinerID)
@@ -44,7 +44,7 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 	}
 	startDuration := uint64(dlineInfo.CurrentEpoch - dlineInfo.Open)
 	if !dlineInfo.IsOpen() {
-		log.Warn().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg("当前未开始WindowedPoSt")
+		log.Warn().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg("WindowedPoSt has not started yet")
 		return nil
 	}
 	if startDuration < uint64(timeout/30) || startDuration > uint64(slient/30) {
@@ -53,7 +53,7 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 			Int("timeout", timeout).
 			Int("slient", slient).
 			Uint64("startDuration", startDuration*30).
-			Msg("当前未满足检查时间")
+			Msg("Current time does not meet check conditions")
 		return nil
 	}
 	deads, err := client.StateMinerDeadlines(ctx, addr, types.EmptyTSK)
@@ -66,8 +66,8 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 	}
 
 	var total int64
-	// 有live扇区的分区
-	// 这里必须这样做，因为有的part可能全是过期扇区
+	// Partitions with live sectors
+	// This must be done this way because some partitions may contain only expired sectors
 	for _, partiton := range parttitons {
 		if liveCount, err := partiton.LiveSectors.Count(); err == nil && liveCount > 0 {
 			total += 1
@@ -76,7 +76,7 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 		}
 	}
 	if total == 0 {
-		log.Info().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg(fmt.Sprintf("当前没有需要提交的分区,等待 %vs 后继续检查", (dlineInfo.Close-dlineInfo.CurrentEpoch)*30))
+		log.Info().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg(fmt.Sprintf("No partitions need to be submitted, waiting %vs before checking again", (dlineInfo.Close-dlineInfo.CurrentEpoch)*30))
 		time.Sleep(time.Second * time.Duration((dlineInfo.Close-dlineInfo.CurrentEpoch)*30))
 		return nil
 	}
@@ -85,9 +85,9 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 		return err
 	}
 	if submmited < uint64(total) {
-		body := fmt.Sprintf("deadline %v 当前已提交%v个Partitions，总共需要提交%v个", dlineInfo.Index, submmited, total)
-		title := fmt.Sprintf("%s WindowedPoSt超时%vmin未提交", cfg.MinerID, startDuration*30/60)
-		log.Error().Str("miner", cfg.MinerID).Str("title", title).Str("body", body).Msg("WindowedPoSt超时未提交")
+		body := fmt.Sprintf("deadline %v has submitted %v Partitions out of %v required", dlineInfo.Index, submmited, total)
+		title := fmt.Sprintf("%s WindowedPoSt timeout %vmin not submitted", cfg.MinerID, startDuration*30/60)
+		log.Error().Str("miner", cfg.MinerID).Str("title", title).Str("body", body).Msg("WindowedPoSt timeout not submitted")
 		err := notifier.SendNotify(cfg.MinerID,
 			body,
 			title,
@@ -95,14 +95,14 @@ func CheckWindowedPoSt(ctx context.Context, client *api.LotusClient, cfg *config
 		if err != nil {
 			return err
 		}
-		log.Debug().Str("miner", cfg.MinerID).Int("sleepInterval", sleepInterval).Msg("等待⌛️一会继续检查WindowedPoSt,防止重复频繁发送告警")
+		log.Debug().Str("miner", cfg.MinerID).Int("sleepInterval", sleepInterval).Msg("Waiting ⌛️ before continuing to check WindowedPoSt to prevent frequent alerts")
 		time.Sleep(time.Second * time.Duration(sleepInterval))
 		return nil
 	}
 
-	// 都提交完成了，睡到下一个deadline
+	// All submissions completed, sleep until the next deadline
 	remainingTime := (dlineInfo.Close - dlineInfo.CurrentEpoch) * 30
-	log.Info().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg(fmt.Sprintf("WindowedPoSt已全部提交,等到 %vs 后继续检查", remainingTime))
+	log.Info().Str("miner", cfg.MinerID).Uint64("deadline", dlineInfo.Index).Msg(fmt.Sprintf("WindowedPoSt fully submitted, waiting %vs before checking again", remainingTime))
 	time.Sleep(time.Second * time.Duration(remainingTime))
 	return nil
 }
@@ -111,7 +111,7 @@ func CheckWDPost(ctx context.Context, client *api.LotusClient, c *config.MinerCo
 	for {
 		err := CheckWindowedPoSt(ctx, client, c)
 		if err != nil {
-			log.Error().Str("miner", c.MinerID).Err(err).Msg("检查WdPost失败")
+			log.Error().Str("miner", c.MinerID).Err(err).Msg("Failed to check WdPost")
 		}
 		time.Sleep(time.Second * time.Duration(config.Global.Global.CheckInterval))
 	}

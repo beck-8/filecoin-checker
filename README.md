@@ -1,85 +1,87 @@
 # Filecoin Checker
 
-## 项目介绍
+[English](README.md) | [中文](README.zh.md)
 
-Filecoin Checker 是一个用于监控 Filecoin 矿工 WindowedPoSt 状态的工具。它可以实时检查矿工的 WindowedPoSt 提交情况和故障扇区数量，在出现问题时通过多种渠道发送通知，帮助矿工及时发现并解决问题。
+## Project Introduction
 
-## 功能特点
+Filecoin Checker is a tool for monitoring the WindowedPoSt status of Filecoin miners. It can check miners' WindowedPoSt submission status and faulty sector count in real-time, sending notifications through various channels when problems occur, helping miners discover and resolve issues promptly.
 
-- **WindowedPoSt 监控**：检测矿工是否按时提交 WindowedPoSt 证明，避免因未及时提交而导致的惩罚
-- **故障扇区监控**：监控矿工的故障扇区数量，当超过阈值时发出警报
-- **多矿工支持**：可同时监控多个矿工 ID
-- **灵活配置**：支持全局配置和矿工级别的个性化配置
-- **多渠道通知**：基于 Apprise 通知系统，支持 100+ 种通知渠道（如 Telegram、Discord 等）
+## Features
 
-## 安装步骤
+- **WindowedPoSt Monitoring**: Detects whether miners submit WindowedPoSt proofs on time, avoiding penalties due to late submissions
+- **Faulty Sector Monitoring**: Monitors the number of faulty sectors for miners, triggering alerts when exceeding thresholds
+- **Multi-Miner Support**: Can monitor multiple miner IDs simultaneously
+- **Flexible Configuration**: Supports global configuration and miner-level customization
+- **Multi-Channel Notifications**: Based on the Apprise notification system, supporting 100+ notification channels (such as Telegram, Discord, etc.)
 
-### 方法一：使用 Docker
+## Installation
+
+### Method 1: Using Docker
 
 ```bash
-# 拉取镜像
+# Pull the image
 docker pull ghcr.io/beck-8/filecoin-checker:latest
 
-# 运行容器
+# Run the container
 docker run -d --name filecoin-checker \
   ghcr.io/beck-8/filecoin-checker:latest
 ```
 
-### 方法二：从源码编译
+### Method 2: Building from Source
 
 ```bash
-# 克隆仓库
+# Clone the repository
 git clone https://github.com/beck-8/filecoin-checker.git
 cd filecoin-checker
 
-# 编译
+# Build
 make build
 
-# 运行
+# Run
 ./filecoin-checker
 ```
 
-## 配置说明
+## Configuration
 
-在运行前，需要创建 `config.yaml` 配置文件。可以复制 `config/config.example.yaml` 并进行修改：
+Before running, you need to create a `config.yaml` configuration file. You can copy `config/config.example.yaml` and modify it:
 
 ```bash
 cp config/config.example.yaml config.yaml
 ```
 
-或者直接运行会生成一份默认配置
+Or running the program directly will generate a default configuration
 
-### 配置参数详解
+### Configuration Parameters
 
 ```yaml
 global:
-    # Lotus RPC 地址，支持 http、ws 等协议
+    # Lotus RPC address, supports http, ws and other protocols
     lotus_api: "http://your-lotus-node:1234/rpc/v1"
-    # Lotus RPC 鉴权 token
+    # Lotus RPC authentication token
     auth_token: ""
-    # 检查间隔，单位秒
+    # Check interval in seconds
     check_interval: 30
 
-    # 以下配置可在 miners 配置中覆盖，可自定义每一个 miner 的参数
-    # deadline 开始后 10 分钟，还没有检测到，认为 wdpost 有问题
+    # The following configurations can be overridden in miners configuration, allowing customization for each miner
+    # If WindowedPoSt is not detected 10 minutes after deadline starts, consider it problematic
     timeout: 600
-    # deadline 开始后 25 分钟，不进行检测，因为来不及了
+    # After 25 minutes from deadline start, stop checking because it's too late
     slient: 1500
-    # 在 wdpost 有问题后，sleep 一会，防止一直频繁发通知
+    # After a WindowedPoSt issue, sleep for a while to prevent frequent notifications
     sleep_interval: 60
-    # 超过 100 个 faults 扇区，才会告警
+    # Only alert when faulty sectors exceed 100
     faults_sectors: 100
-    # apprise_api_server 地址
+    # apprise_api_server address
     apprise_api_server: "https://your-apprise-server/notify"
-    # 通知媒介，支持 100 种+
-    # 具体使用方法查看 apprise 文档
+    # Notification channels, supports 100+ types
+    # For detailed usage, check the apprise documentation
     recipient_urls:
         - "telegram://bot_token:api_key/chat_id"
         # - "discord://webhook_id/webhook_token"
 
 miners:
   - miner_id: f01234567
-    # 以下参数可选，不设置则使用全局配置
+    # The following parameters are optional, global configuration will be used if not set
     # timeout: 600
     # slient: 1500
     # sleep_interval: 120
@@ -90,37 +92,37 @@ miners:
   - miner_id: f07654321
 ```
 
-### 通知配置
+### Notification Configuration
 
-本项目使用 [Apprise](https://github.com/caronc/apprise) 作为通知系统，支持 100+ 种通知渠道。您需要：
-1. 自建 Apprise API 服务器（[Vercel部署](https://github.com/beck-8/subs-check?tab=readme-ov-file#vercel-serverless-%E9%83%A8%E7%BD%B2)、[docker部署](https://github.com/beck-8/subs-check?tab=readme-ov-file#docker%E9%83%A8%E7%BD%B2) 等方法）
-2. 设置 `apprise_api_server` 为 Apprise API 服务器地址
-3. 在 `recipient_urls` 中配置通知目标 URL
+This project uses [Apprise](https://github.com/caronc/apprise) as the notification system, supporting 100+ notification channels. You need to:
+1. Set up your own Apprise API server ([Vercel deployment](https://github.com/beck-8/subs-check?tab=readme-ov-file#vercel-serverless-%E9%83%A8%E7%BD%B2), [docker deployment](https://github.com/beck-8/subs-check?tab=readme-ov-file#docker%E9%83%A8%E7%BD%B2), etc.)
+2. Set `apprise_api_server` to your Apprise API server address
+3. Configure notification target URLs in `recipient_urls`
 
-常用通知渠道示例：
+Common notification channel examples:
 
 - Telegram: `telegram://bot_token:api_key/chat_id`
 - Discord: `discord://webhook_id/webhook_token`
 - Email: `mailto://user:password@gmail.com`
 
-更多通知渠道配置请参考 [Apprise 文档](https://github.com/caronc/apprise/wiki)
+For more notification channel configurations, please refer to the [Apprise documentation](https://github.com/caronc/apprise/wiki)
 
-## 使用方法
+## Usage
 
-1. 配置好 `config.yaml` 文件
-2. 启动程序：`./filecoin-checker` 或使用 Docker 运行
-3. 程序会自动开始监控配置的矿工 ID
-4. 当检测到 WindowedPoSt 未及时提交或故障扇区数量超过阈值时，会通过配置的通知渠道发送警报
+1. Configure the `config.yaml` file
+2. Start the program: `./filecoin-checker` or run with Docker
+3. The program will automatically start monitoring the configured miner IDs
+4. When it detects that WindowedPoSt is not submitted on time or the number of faulty sectors exceeds the threshold, it will send alerts through the configured notification channels
 
-## 日志说明
+## Log Description
 
-程序运行时会输出日志，包含以下信息：
+The program outputs logs during operation, including the following information:
 
-- 启动信息：版本号、配置的矿工数量
-- 监控信息：各矿工的 WindowedPoSt 状态、故障扇区数量
-- 警报信息：当检测到问题时的详细警报内容
-- 通知状态：通知发送成功或失败的信息
+- Startup information: version number, number of configured miners
+- Monitoring information: WindowedPoSt status and faulty sector count for each miner
+- Alert information: detailed alert content when problems are detected
+- Notification status: information about successful or failed notification delivery
 
-## 许可证
+## License
 
 [MIT License](LICENSE)

@@ -40,6 +40,6 @@ func init() {
 
 	err = config.LoadConfig(configFile)
 	if err != nil {
-		log.Fatal().Err(err).Msg("加载配置失败")
+		log.Fatal().Err(err).Msg("Failed to load configuration")
 	}
 }

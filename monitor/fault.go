@@ -30,7 +30,7 @@ func CheckFaultSectors(ctx context.Context, client *api.LotusClient, cfg *config
 		return err
 	}
 	if !dlineInfo.IsOpen() {
-		log.Warn().Str("miner", cfg.MinerID).Msg("当前未开始WindowedPoSt,跳过Fault检查")
+		log.Warn().Str("miner", cfg.MinerID).Msg("WindowedPoSt has not started yet, skipping Fault check")
 		return nil
 	}
 
@@ -61,12 +61,12 @@ func CheckFaultSectors(ctx context.Context, client *api.LotusClient, cfg *config
 	if count, err := diff.Count(); err != nil {
 		return err
 	} else if count > 0 {
-		log.Error().Str("miner", cfg.MinerID).Uint64("count", count).Msg("检测到新的faults扇区")
+		log.Error().Str("miner", cfg.MinerID).Uint64("count", count).Msg("Detected new faulty sectors")
 
 		if count > uint64(faultsSectors) {
 			err := notifier.SendNotify(cfg.MinerID,
-				fmt.Sprintf("新增%v个faults扇区", count),
-				fmt.Sprintf("%v 检测到新的faults扇区", cfg.MinerID),
+				fmt.Sprintf("%v new faulty sectors", count),
+				fmt.Sprintf("%v detected new faulty sectors", cfg.MinerID),
 				cfg.RecipientURLs, cfg.AppriseAPIServer)
 
 			if err != nil {
@@ -75,9 +75,9 @@ func CheckFaultSectors(ctx context.Context, client *api.LotusClient, cfg *config
 		}
 	}
 
-	// fault检测逻辑每半小时只需要一次
+	// Fault detection logic only needs to run once every half hour
 	remainingTime := (dlineInfo.Close - dlineInfo.CurrentEpoch) * 30
-	log.Info().Str("miner", cfg.MinerID).Msg(fmt.Sprintf("没有fault扇区,等待 %vs 后继续检查", remainingTime))
+	log.Info().Str("miner", cfg.MinerID).Msg(fmt.Sprintf("No faulty sectors, waiting %vs before checking again", remainingTime))
 	time.Sleep(time.Second * time.Duration(remainingTime))
 	return nil
 }
@@ -86,9 +86,9 @@ func CheckFault(ctx context.Context, client *api.LotusClient, c *config.MinerCon
 	for {
 		err := CheckFaultSectors(ctx, client, c)
 		if err != nil {
-			log.Error().Str("miner", c.MinerID).Err(err).Msg("检查faults扇区失败")
+			log.Error().Str("miner", c.MinerID).Err(err).Msg("Failed to check faulty sectors")
 		}
-		// 里边sleep了
+		// Sleep is handled inside the function
 		// time.Sleep(time.Second * time.Duration(config.Global.Global.CheckInterval))
 	}
 }
