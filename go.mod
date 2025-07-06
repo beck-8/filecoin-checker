@@ -1,4 +1,4 @@
-module filecoin-check
+module filecoin-checker
 
 go 1.24.3
 
